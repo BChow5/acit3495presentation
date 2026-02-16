@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  auth_service:
+    build: ./auth_service
+    ports:
+      - "8003:8003"
+
+  filesystem_service:
+    build: ./filesystem_service
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./video_storage:/video_storage
+
+  upload_service:
+    build: ./upload_service
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth_service
+      - filesystem_service
+    volumes:
+    - ./video_storage:/video_storage
+
+  streaming_service:
+    build: ./streaming_service
+    ports:
+      - "8001:8001"
+    depends_on:
+      - auth_service
+      - filesystem_service
+    volumes:
+    - ./video_storage:/video_storage
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: video_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
