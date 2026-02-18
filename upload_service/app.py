@@ -1,21 +1,17 @@
 # upload_service/app.py
-from fastapi import FastAPI, File, UploadFile, Request, Form, Depends
+from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import HTMLResponse
-import shutil
+import requests
 import mysql.connector
-import os
 
 app = FastAPI()
-
-# Ensure video storage folder exists
-os.makedirs("video_storage", exist_ok=True)
 
 # MySQL connection function
 def get_db():
     return mysql.connector.connect(
-        host="mysql",      # Docker Compose service name
+        host="mysql",
         user="root",
-        password="rootpassword",   # match your docker-compose
+        password="rootpassword",
         database="video_db"
     )
 
@@ -32,10 +28,18 @@ def upload_form():
 
 @app.post("/upload", response_class=HTMLResponse)
 async def upload_file(file: UploadFile = File(...), username: str = Form(...)):
-    filepath = f"/video_storage/{file.filename}"
-    # Save the file
-    with open(filepath, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+    contents = await file.read()
+
+    # Delegate file saving to filesystem_service
+    response = requests.post(
+        "http://filesystem_service:8004/upload",
+        files={"file": (file.filename, contents, file.content_type)}
+    )
+    result = response.json()
+    if "error" in result:
+        return f"<h3>Upload failed: {result['error']}</h3>"
+
+    filepath = result["path"]
 
     # Insert metadata into MySQL
     db = get_db()

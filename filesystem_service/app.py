@@ -3,7 +3,7 @@ import os
 import shutil
 
 app = FastAPI()
-STORAGE_DIR = "/videos"
+STORAGE_DIR = "/video_storage"
 os.makedirs(STORAGE_DIR, exist_ok=True)
 
 @app.post("/upload")

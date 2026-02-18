@@ -20,6 +20,7 @@ services:
     depends_on:
       - auth_service
       - filesystem_service
+      - mysql
     volumes:
     - ./video_storage:/video_storage
 
@@ -30,6 +31,7 @@ services:
     depends_on:
       - auth_service
       - filesystem_service
+      - mysql
     volumes:
     - ./video_storage:/video_storage
 
@@ -42,5 +44,6 @@ services:
       MYSQL_PASSWORD: password
     volumes:
       - ./mysql_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3306:3306"

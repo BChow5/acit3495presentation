@@ -1,7 +1,7 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 import mysql.connector
-import os
+import requests
 
 app = FastAPI()
 
@@ -13,8 +13,6 @@ def get_db():
         password="password",
         database="video_db"
     )
-
-VIDEO_STORAGE_PATH = "/video_storage"  # folder where upload_service saves videos
 
 @app.get("/videos", response_class=HTMLResponse)
 def videos():
@@ -38,11 +36,12 @@ def videos():
 
 @app.get("/stream_page/{video_name}", response_class=HTMLResponse)
 def stream_page(video_name: str):
-    file_path = os.path.join(VIDEO_STORAGE_PATH, video_name)
-    if not os.path.exists(file_path):
+    # Ask filesystem_service whether the file exists
+    response = requests.get(f"http://filesystem_service:8004/files/{video_name}")
+    result = response.json()
+    if "error" in result:
         raise HTTPException(status_code=404, detail="Video not found")
 
-    # HTML page with video player
     html_content = f"""
     <h2>Playing: {video_name}</h2>
     <video width="720" height="480" controls>
@@ -55,8 +54,10 @@ def stream_page(video_name: str):
 
 @app.get("/stream/{video_name}")
 def stream_video(video_name: str):
-    file_path = os.path.join(VIDEO_STORAGE_PATH, video_name)
-    if not os.path.exists(file_path):
+    # Ask filesystem_service for the file path
+    response = requests.get(f"http://filesystem_service:8004/files/{video_name}")
+    result = response.json()
+    if "error" in result:
         raise HTTPException(status_code=404, detail="Video not found")
 
-    return FileResponse(file_path, media_type="video/mp4", filename=video_name)
+    return FileResponse(result["path"], media_type="video/mp4", filename=video_name)
