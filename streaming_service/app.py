@@ -37,7 +37,7 @@ def videos():
 @app.get("/stream_page/{video_name}", response_class=HTMLResponse)
 def stream_page(video_name: str):
     # Ask filesystem_service whether the file exists
-    response = requests.get(f"http://filesystem_service:8004/files/{video_name}")
+    response = requests.get(f"http://filesystem-service:8004/files/{video_name}")
     result = response.json()
     if "error" in result:
         raise HTTPException(status_code=404, detail="Video not found")
@@ -55,7 +55,7 @@ def stream_page(video_name: str):
 @app.get("/stream/{video_name}")
 def stream_video(video_name: str):
     # Ask filesystem_service for the file path
-    response = requests.get(f"http://filesystem_service:8004/files/{video_name}")
+    response = requests.get(f"http://filesystem-service:8004/files/{video_name}")
     result = response.json()
     if "error" in result:
         raise HTTPException(status_code=404, detail="Video not found")

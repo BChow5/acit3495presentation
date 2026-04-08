@@ -28,9 +28,9 @@ def login(username: str = Form(...), password: str = Form(...), destination: str
     if users.get(username) == password:
         # Redirect to chosen page
         if destination == "upload":
-            return RedirectResponse(url="http://localhost:8000/upload", status_code=303)
+            return RedirectResponse(url="http://8.229.161.69/upload", status_code=303)
         else:
-            return RedirectResponse(url="http://localhost:8001/videos", status_code=303)
+            return RedirectResponse(url="http://136.117.103.240/videos", status_code=303)
     return HTMLResponse("<h3>Login failed. <a href='/'>Try again</a></h3>")
 
 

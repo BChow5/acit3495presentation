@@ -32,7 +32,7 @@ async def upload_file(file: UploadFile = File(...), username: str = Form(...)):
 
     # Delegate file saving to filesystem_service
     response = requests.post(
-        "http://filesystem_service:8004/upload",
+        "http://filesystem-service:8004/upload",
         files={"file": (file.filename, contents, file.content_type)}
     )
     result = response.json()
@@ -52,4 +52,4 @@ async def upload_file(file: UploadFile = File(...), username: str = Form(...)):
     cursor.close()
     db.close()
 
-    return f"<h3>{file.filename} uploaded successfully. <a href='http://localhost:8001/videos'>Go to Videos</a></h3>"
+    return f"<h3>{file.filename} uploaded successfully. <a href='http://streaming-service/videos'>Go to Videos</a></h3>"

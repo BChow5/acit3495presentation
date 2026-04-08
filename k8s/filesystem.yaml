@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: filesystem-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: filesystem-service
+  template:
+    metadata:
+      labels:
+        app: filesystem-service
+    spec:
+      containers:
+        - name: filesystem-service
+          image: us-west1-docker.pkg.dev/acit3495-492606/docker-video-app/filesystem-service:latest
+          ports:
+            - containerPort: 8004
+          volumeMounts:
+            - name: video-storage
+              mountPath: /video_storage
+      volumes:
+        - name: video-storage
+          persistentVolumeClaim:
+            claimName: video-storage-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: filesystem-service
+spec:
+  selector:
+    app: filesystem-service
+  ports:
+    - port: 8004
+      targetPort: 8004

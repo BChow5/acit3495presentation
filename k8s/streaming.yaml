@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streaming-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: streaming-service
+  template:
+    metadata:
+      labels:
+        app: streaming-service
+    spec:
+      containers:
+        - name: streaming-service
+          image: us-west1-docker.pkg.dev/acit3495-492606/docker-video-app/streaming-service:latest
+          ports:
+            - containerPort: 8001
+          volumeMounts:
+            - name: video-storage
+              mountPath: /video_storage
+      volumes:
+        - name: video-storage
+          persistentVolumeClaim:
+            claimName: video-storage-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: streaming-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: streaming-service
+  ports:
+    - port: 80
+      targetPort: 8001
